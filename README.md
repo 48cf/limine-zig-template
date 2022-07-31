@@ -2,7 +2,7 @@
 
 This repository will show you how to set up a simple 64-bit x86_64 long mode higher half Zig kernel using Limine.
 
-To build this project you need a master Zig build. For instructions on how to build Zig please refer to [this wiki page.](https://github.com/ziglang/zig/wiki/Building-Zig-From-Source)
+To build this project you need the latest stage 2/3 Zig compiler. For instructions on how to build one please refer to [this wiki page.](https://github.com/ziglang/zig/wiki/Building-Zig-From-Source)
 
 ## Where to go from here
 
