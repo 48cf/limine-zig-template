@@ -24,7 +24,7 @@ pub fn build(b: *std.build.Builder) !void {
     kernel.code_model = .kernel;
     kernel.setBuildMode(mode);
     kernel.addPackagePath("limine", "limine-zig/limine.zig");
-    kernel.setLinkerScriptPath(.{ .path = "src/linker-x86_64.ld" });
+    kernel.setLinkerScriptPath(.{ .path = "linker-x86_64.ld" });
     kernel.setTarget(target);
     kernel.install();
 }

@@ -26,19 +26,16 @@ ovmf-x64:
 
 limine:
 	git clone https://github.com/limine-bootloader/limine.git --branch=v3.0-branch-binary --depth=1
-	make -C limine
-
-limine-zig:
-	git clone https://github.com/limine-bootloader/limine-zig.git --depth=1
+	$(MAKE) -C limine
 
 .PHONY: kernel
-kernel: limine-zig
-	zig build -fno-stage1
+kernel:
+	$(MAKE) -C kernel
 
 barebones.iso: limine kernel
 	rm -rf iso_root
 	mkdir -p iso_root
-	cp zig-out/bin/kernel \
+	cp kernel/zig-out/bin/kernel \
 		limine.cfg limine/limine.sys limine/limine-cd.bin limine/limine-cd-efi.bin iso_root/
 	xorriso -as mkisofs -b limine-cd.bin \
 		-no-emul-boot -boot-load-size 4 -boot-info-table \
@@ -60,7 +57,7 @@ barebones.hdd: limine kernel
 	mkdir -p img_mount
 	sudo mount `cat loopback_dev`p1 img_mount
 	sudo mkdir -p img_mount/EFI/BOOT
-	sudo cp -v zig-out/bin/kernel limine.cfg limine/limine.sys img_mount/
+	sudo cp -v kernel/zig-out/bin/kernel limine.cfg limine/limine.sys img_mount/
 	sudo cp -v limine/BOOTX64.EFI img_mount/EFI/BOOT/
 	sync
 	sudo umount img_mount
@@ -69,8 +66,10 @@ barebones.hdd: limine kernel
 
 .PHONY: clean
 clean:
-	rm -rf iso_root barebones.iso barebones.hdd zig-cache zig-out
+	rm -rf iso_root barebones.iso barebones.hdd
+	$(MAKE) -C kernel clean
 
 .PHONY: distclean
 distclean: clean
-	rm -rf limine limine-zig ovmf-x64
+	rm -rf limine ovmf-x64
+	$(MAKE) -C kernel distclean
