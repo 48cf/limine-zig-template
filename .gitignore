@@ -1,0 +1,7 @@
+limine
+limine-zig
+ovmf-x64
+zig-cache
+zig-out
+*.hdd
+*.iso
