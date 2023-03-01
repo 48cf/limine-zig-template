@@ -1,6 +1,5 @@
 override INTERNALZIGFLAGS := \
-	-fno-stage1              \
-	-Drelease-safe=true
+	-Doptimize=ReleaseSafe
 
 .PHONY: all
 all: kernel

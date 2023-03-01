@@ -19,12 +19,17 @@ pub fn build(b: *std.build.Builder) !void {
     target.cpu_features_add.addFeature(@enumToInt(Features.soft_float));
 
     // Build the kernel itself.
-    const mode = b.standardReleaseOptions();
-    const kernel = b.addExecutable("kernel", "src/main.zig");
+    const optimize = b.standardOptimizeOption(.{});
+    const kernel = b.addExecutable(.{
+        .name = "kernel",
+        .root_source_file = .{ .path = "src/main.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
     kernel.code_model = .kernel;
-    kernel.setBuildMode(mode);
-    kernel.addPackagePath("limine", "limine-zig/limine.zig");
+    kernel.addAnonymousModule("limine", .{
+        .source_file = .{ .path = "limine-zig/limine.zig" },
+    });
     kernel.setLinkerScriptPath(.{ .path = "linker-x86_64.ld" });
-    kernel.setTarget(target);
     kernel.install();
 }
