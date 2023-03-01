@@ -1,4 +1,7 @@
-override INTERNALZIGFLAGS := \
+# Nuke built-in rules and variables.
+override MAKEFLAGS += -rR
+
+override ZIGFLAGS += \
 	-Doptimize=ReleaseSafe
 
 .PHONY: all
@@ -6,7 +9,7 @@ all: kernel
 
 .PHONY: kernel
 kernel: limine-zig
-	zig build $(INTERNALZIGFLAGS) $(ZIGFLAGS)
+	zig build $(ZIGFLAGS)
 
 limine-zig:
 	git clone https://github.com/limine-bootloader/limine-zig.git --depth=1
