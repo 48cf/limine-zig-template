@@ -30,6 +30,6 @@ pub fn build(b: *std.build.Builder) !void {
     kernel.addAnonymousModule("limine", .{
         .source_file = .{ .path = "limine-zig/limine.zig" },
     });
-    kernel.setLinkerScriptPath(.{ .path = "linker-x86_64.ld" });
+    kernel.setLinkerScriptPath(.{ .path = "linker.ld" });
     kernel.install();
 }
