@@ -1,7 +1,4 @@
-limine
-limine-zig
-ovmf-x64
-zig-cache
-zig-out
-*.hdd
+/limine
+/ovmf-x64
 *.iso
+*.hdd
