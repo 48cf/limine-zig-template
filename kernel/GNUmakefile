@@ -2,7 +2,7 @@
 override MAKEFLAGS += -rR
 
 override ZIGFLAGS += \
-	-Doptimize=ReleaseSafe
+    -Doptimize=ReleaseSafe
 
 .PHONY: all
 all: kernel
