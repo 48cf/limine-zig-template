@@ -31,5 +31,6 @@ pub fn build(b: *std.build.Builder) !void {
         .source_file = .{ .path = "limine-zig/limine.zig" },
     });
     kernel.setLinkerScriptPath(.{ .path = "linker.ld" });
-    kernel.install();
+
+    b.installArtifact(kernel);
 }
