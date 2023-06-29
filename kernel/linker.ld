@@ -12,6 +12,7 @@ PHDRS
     text    PT_LOAD    FLAGS((1 << 0) | (1 << 2)) ; /* Execute + Read */
     rodata  PT_LOAD    FLAGS((1 << 2)) ;            /* Read only */
     data    PT_LOAD    FLAGS((1 << 1) | (1 << 2)) ; /* Write + Read */
+    dynamic PT_DYNAMIC FLAGS((1 << 1) | (1 << 2)) ; /* Dynamic PHDR for relocations */
 }
 
 SECTIONS
@@ -39,6 +40,11 @@ SECTIONS
     .data : {
         *(.data .data.*)
     } :data
+
+    /* Dynamic section for relocations, both in its own PHDR and inside data PHDR */
+    .dynamic : {
+        *(.dynamic)
+    } :data :dynamic
 
     /* NOTE: .bss needs to be the last thing mapped to :data, otherwise lots of */
     /* unnecessary zeros will be written to the binary. */
