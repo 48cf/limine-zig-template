@@ -29,7 +29,7 @@ export fn _start() callconv(.C) noreturn {
             const pixel_offset = i * framebuffer.pitch + i * 4;
 
             // Write 0xFFFFFFFF to the provided pixel offset to fill it white.
-            @as(*u32, @ptrCast(@alignCast(4, framebuffer.address + pixel_offset))).* = 0xFFFFFFFF;
+            @as(*u32, @ptrCast(@alignCast(framebuffer.address + pixel_offset))).* = 0xFFFFFFFF;
         }
     }
 
