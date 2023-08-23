@@ -8,12 +8,9 @@ override ZIGFLAGS += \
 all: kernel
 
 .PHONY: kernel
-kernel: limine-zig
+kernel:
 	zig build $(ZIGFLAGS)
 	cp zig-out/bin/kernel kernel.elf
-
-limine-zig:
-	git clone https://github.com/limine-bootloader/limine-zig.git --depth=1
 
 .PHONY: clean
 clean:

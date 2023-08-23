@@ -20,6 +20,7 @@ pub fn build(b: *std.build.Builder) !void {
 
     // Build the kernel itself.
     const optimize = b.standardOptimizeOption(.{});
+    const limine = b.dependency("limine", .{});
     const kernel = b.addExecutable(.{
         .name = "kernel",
         .root_source_file = .{ .path = "src/main.zig" },
@@ -27,9 +28,7 @@ pub fn build(b: *std.build.Builder) !void {
         .optimize = optimize,
     });
     kernel.code_model = .kernel;
-    kernel.addAnonymousModule("limine", .{
-        .source_file = .{ .path = "limine-zig/limine.zig" },
-    });
+    kernel.addModule("limine", limine.module("limine"));
     kernel.setLinkerScriptPath(.{ .path = "linker.ld" });
     kernel.pie = true;
 
