@@ -1,0 +1,10 @@
+.{
+    .name = "limine-zig-barebones",
+    .version = "1.0.0",
+    .dependencies = .{
+        .limine = .{
+            .url = "https://github.com/limine-bootloader/limine-zig/archive/trunk.tar.gz",
+            .hash = "12200618cf5955c4f0c1e4639247cd24297641f9443e4f3f183a8201d70aeac52ed2",
+        },
+    },
+}
