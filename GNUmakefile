@@ -25,6 +25,9 @@ $(eval $(call DEFAULT_VAR,HOST_LDFLAGS,$(DEFAULT_HOST_LDFLAGS)))
 override DEFAULT_HOST_LIBS :=
 $(eval $(call DEFAULT_VAR,HOST_LIBS,$(DEFAULT_HOST_LIBS)))
 
+override DEFAULT_ZIGFLAGS := -Doptimize=ReleaseSafe
+$(eval $(call DEFAULT_VAR,ZIGFLAGS,$(DEFAULT_ZIGFLAGS)))
+
 .PHONY: all
 all: $(IMAGE_NAME).iso
 
@@ -62,12 +65,12 @@ limine:
 
 .PHONY: kernel
 kernel:
-	$(MAKE) -C kernel
+	cd kernel && zig build $(ZIGFLAGS)
 
 $(IMAGE_NAME).iso: limine kernel
 	rm -rf iso_root
 	mkdir -p iso_root
-	cp -v kernel/kernel.elf \
+	cp -v kernel/zig-out/bin/kernel \
 		limine.cfg limine/limine-bios.sys limine/limine-bios-cd.bin limine/limine-uefi-cd.bin iso_root/
 	mkdir -p iso_root/EFI/BOOT
 	cp -v limine/BOOTX64.EFI iso_root/EFI/BOOT/
@@ -87,16 +90,15 @@ $(IMAGE_NAME).hdd: limine kernel
 	./limine/limine bios-install $(IMAGE_NAME).hdd
 	mformat -i $(IMAGE_NAME).hdd@@1M
 	mmd -i $(IMAGE_NAME).hdd@@1M ::/EFI ::/EFI/BOOT
-	mcopy -i $(IMAGE_NAME).hdd@@1M kernel/kernel.elf limine.cfg limine/limine-bios.sys ::/
+	mcopy -i $(IMAGE_NAME).hdd@@1M kernel/zig-out/bin/kernel limine.cfg limine/limine-bios.sys ::/
 	mcopy -i $(IMAGE_NAME).hdd@@1M limine/BOOTX64.EFI ::/EFI/BOOT
 	mcopy -i $(IMAGE_NAME).hdd@@1M limine/BOOTIA32.EFI ::/EFI/BOOT
 
 .PHONY: clean
 clean:
 	rm -rf iso_root $(IMAGE_NAME).iso $(IMAGE_NAME).hdd
-	$(MAKE) -C kernel clean
+	rm -rf kernel/zig-cache kernel/zig-out
 
 .PHONY: distclean
 distclean: clean
 	rm -rf limine ovmf
-	$(MAKE) -C kernel distclean
