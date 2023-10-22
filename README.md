@@ -1,4 +1,4 @@
-# Limine Zig Bare Bones
+# Limine Zig Template
 
 This repository will demonstrate how to set up a basic x86-64 kernel in Zig using Limine.
 
