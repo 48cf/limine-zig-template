@@ -4,8 +4,8 @@
     .paths = .{"."},
     .dependencies = .{
         .limine = .{
-            .url = "https://github.com/limine-bootloader/limine-zig/archive/0fb86a2af7f0e74421696dcba1e6553b1f965c63.tar.gz",
-            .hash = "12202809180bab2c7ae3382781b2fc65395e74b49d99ff2595f3fea9f7cf66cfa963",
+            .url = "https://github.com/limine-bootloader/limine-zig/archive/7aa3e8d139ea0b8c38ab5e6b990b3b714fcf4e8a.tar.gz",
+            .hash = "1220b444cd87607a63a55a9aca02de8369a7fca9cfa68b1bf88c2af0debf81a8e082",
         },
     },
 }
