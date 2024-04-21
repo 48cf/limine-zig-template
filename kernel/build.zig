@@ -1,6 +1,6 @@
 const std = @import("std");
 
-pub fn build(b: *std.build.Builder) !void {
+pub fn build(b: *std.Build) void {
     // Define a freestanding x86_64 cross-compilation target.
     var target: std.zig.CrossTarget = .{
         .cpu_arch = .x86_64,
@@ -24,13 +24,14 @@ pub fn build(b: *std.build.Builder) !void {
     const kernel = b.addExecutable(.{
         .name = "kernel",
         .root_source_file = .{ .path = "src/main.zig" },
-        .target = target,
+        .target = b.resolveTargetQuery(target),
         .optimize = optimize,
+        .code_model = .kernel,
+        .pic = true,
     });
-    kernel.code_model = .kernel;
-    kernel.addModule("limine", limine.module("limine"));
+
+    kernel.root_module.addImport("limine", limine.module("limine"));
     kernel.setLinkerScriptPath(.{ .path = "linker.ld" });
-    kernel.pie = true;
 
     b.installArtifact(kernel);
 }
