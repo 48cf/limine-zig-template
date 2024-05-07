@@ -13,20 +13,8 @@ define DEFAULT_VAR =
     endif
 endef
 
-# Toolchain for building the 'limine' executable for the host.
-override DEFAULT_HOST_CC := cc
-$(eval $(call DEFAULT_VAR,HOST_CC,$(DEFAULT_HOST_CC)))
-override DEFAULT_HOST_CFLAGS := -g -O2 -pipe
-$(eval $(call DEFAULT_VAR,HOST_CFLAGS,$(DEFAULT_HOST_CFLAGS)))
-override DEFAULT_HOST_CPPFLAGS :=
-$(eval $(call DEFAULT_VAR,HOST_CPPFLAGS,$(DEFAULT_HOST_CPPFLAGS)))
-override DEFAULT_HOST_LDFLAGS :=
-$(eval $(call DEFAULT_VAR,HOST_LDFLAGS,$(DEFAULT_HOST_LDFLAGS)))
-override DEFAULT_HOST_LIBS :=
-$(eval $(call DEFAULT_VAR,HOST_LIBS,$(DEFAULT_HOST_LIBS)))
-
-override DEFAULT_ZIGFLAGS := -Doptimize=ReleaseSafe
-$(eval $(call DEFAULT_VAR,ZIGFLAGS,$(DEFAULT_ZIGFLAGS)))
+override DEFAULT_KZIGFLAGS := -Doptimize=ReleaseSafe
+$(eval $(call DEFAULT_VAR,KZIGFLAGS,$(DEFAULT_KZIGFLAGS)))
 
 .PHONY: all
 all: $(IMAGE_NAME).iso
@@ -56,16 +44,11 @@ ovmf:
 
 limine:
 	git clone https://github.com/limine-bootloader/limine.git --branch=v7.x-binary --depth=1
-	$(MAKE) -C limine \
-		CC="$(HOST_CC)" \
-		CFLAGS="$(HOST_CFLAGS)" \
-		CPPFLAGS="$(HOST_CPPFLAGS)" \
-		LDFLAGS="$(HOST_LDFLAGS)" \
-		LIBS="$(HOST_LIBS)"
+	$(MAKE) -C limine
 
 .PHONY: kernel
 kernel:
-	cd kernel && zig build $(ZIGFLAGS)
+	cd kernel && zig build $(KZIGFLAGS)
 
 $(IMAGE_NAME).iso: limine kernel
 	rm -rf iso_root
