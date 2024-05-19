@@ -6,10 +6,10 @@ const std = @import("std");
 // be made volatile or equivalent. In Zig, `export var` is what we use.
 pub export var framebuffer_request: limine.FramebufferRequest = .{};
 
-// Set the base revision to 1, this is recommended as this is the latest
+// Set the base revision to 2, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
 // See specification for further info.
-pub export var base_revision: limine.BaseRevision = .{ .revision = 1 };
+pub export var base_revision: limine.BaseRevision = .{ .revision = 2 };
 
 inline fn done() noreturn {
     while (true) {
