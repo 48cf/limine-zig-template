@@ -83,7 +83,7 @@ $(IMAGE_NAME).hdd: limine/limine kernel
 .PHONY: clean
 clean:
 	rm -rf iso_root $(IMAGE_NAME).iso $(IMAGE_NAME).hdd
-	rm -rf kernel/zig-cache kernel/zig-out
+	rm -rf kernel/.zig-cache kernel/zig-out
 
 .PHONY: distclean
 distclean: clean
