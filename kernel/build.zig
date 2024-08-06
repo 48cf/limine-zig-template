@@ -27,7 +27,6 @@ pub fn build(b: *std.Build) void {
         .target = b.resolveTargetQuery(target),
         .optimize = optimize,
         .code_model = .kernel,
-        .pic = true,
     });
 
     kernel.root_module.addImport("limine", limine.module("limine"));
