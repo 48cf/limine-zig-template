@@ -55,7 +55,6 @@ pub fn build(b: *std.Build) void {
             target_query.cpu_features_sub.addFeature(@intFromEnum(Feature.crypto));
             target_query.cpu_features_sub.addFeature(@intFromEnum(Feature.neon));
 
-            code_model = .large;
             linker_script_path = b.path("linker-aarch64.ld");
         },
         else => std.debug.panic("Unsupported architecture: {s}", .{@tagName(arch)}),
