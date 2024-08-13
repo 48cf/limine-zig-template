@@ -1,3 +1,4 @@
+const builtin = @import("builtin");
 const limine = @import("limine");
 const std = @import("std");
 
@@ -13,7 +14,11 @@ pub export var base_revision: limine.BaseRevision = .{ .revision = 2 };
 
 inline fn done() noreturn {
     while (true) {
-        asm volatile ("hlt");
+        switch (builtin.cpu.arch) {
+            .x86_64 => asm volatile ("hlt"),
+            .aarch64 => asm volatile ("wfi"),
+            else => unreachable,
+        }
     }
 }
 

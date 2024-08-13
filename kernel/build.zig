@@ -1,39 +1,87 @@
 const std = @import("std");
 
-pub fn build(b: *std.Build) void {
-    // Define a freestanding x86_64 cross-compilation target.
-    var target: std.zig.CrossTarget = .{
-        .cpu_arch = .x86_64,
+fn targetQueryForArch(arch: std.Target.Cpu.Arch) std.Target.Query {
+    var target: std.Target.Query = .{
+        .cpu_arch = arch,
         .os_tag = .freestanding,
         .abi = .none,
     };
 
-    // Disable CPU features that require additional initialization
-    // like MMX, SSE/2 and AVX. That requires us to enable the soft-float feature.
-    const Features = std.Target.x86.Feature;
-    target.cpu_features_sub.addFeature(@intFromEnum(Features.mmx));
-    target.cpu_features_sub.addFeature(@intFromEnum(Features.sse));
-    target.cpu_features_sub.addFeature(@intFromEnum(Features.sse2));
-    target.cpu_features_sub.addFeature(@intFromEnum(Features.avx));
-    target.cpu_features_sub.addFeature(@intFromEnum(Features.avx2));
-    target.cpu_features_add.addFeature(@intFromEnum(Features.soft_float));
+    if (arch == .x86_64) {
+        const featureSet = std.Target.x86.featureSet;
 
-    // Build the kernel itself.
+        target.cpu_features_sub.addFeatureSet(featureSet(&.{ .mmx, .sse, .sse2, .avx, .avx2 }));
+        target.cpu_features_add.addFeatureSet(featureSet(&.{.soft_float}));
+    } else if (arch == .aarch64) {
+        const featureSet = std.Target.aarch64.featureSet;
+
+        target.cpu_features_sub.addFeatureSet(featureSet(&.{ .fp_armv8, .crypto, .neon }));
+    } else {
+        std.debug.panic("Unsupported architecture: {s}", .{@tagName(arch)});
+    }
+
+    return target;
+}
+
+pub fn build(b: *std.Build) void {
+    const arch = b.option(std.Target.Cpu.Arch, "arch", "The target kernel architecture") orelse .x86_64;
+
+    var code_model: std.builtin.CodeModel = .default;
+    var linker_script_path: std.Build.LazyPath = undefined;
+    var target_query: std.Target.Query = .{
+        .cpu_arch = arch,
+        .os_tag = .freestanding,
+        .abi = .none,
+    };
+
+    switch (arch) {
+        .x86_64 => {
+            const Feature = std.Target.x86.Feature;
+
+            target_query.cpu_features_add.addFeature(@intFromEnum(Feature.soft_float));
+            target_query.cpu_features_sub.addFeature(@intFromEnum(Feature.mmx));
+            target_query.cpu_features_sub.addFeature(@intFromEnum(Feature.sse));
+            target_query.cpu_features_sub.addFeature(@intFromEnum(Feature.sse2));
+            target_query.cpu_features_sub.addFeature(@intFromEnum(Feature.avx));
+            target_query.cpu_features_sub.addFeature(@intFromEnum(Feature.avx2));
+
+            code_model = .kernel;
+            linker_script_path = b.path("linker-x86_64.ld");
+        },
+        .aarch64 => {
+            const Feature = std.Target.aarch64.Feature;
+
+            target_query.cpu_features_sub.addFeature(@intFromEnum(Feature.fp_armv8));
+            target_query.cpu_features_sub.addFeature(@intFromEnum(Feature.crypto));
+            target_query.cpu_features_sub.addFeature(@intFromEnum(Feature.neon));
+
+            code_model = .large;
+            linker_script_path = b.path("linker-aarch64.ld");
+        },
+        else => std.debug.panic("Unsupported architecture: {s}", .{@tagName(arch)}),
+    }
+
+    const target = b.resolveTargetQuery(target_query);
     const optimize = b.standardOptimizeOption(.{});
     const limine = b.dependency("limine", .{});
+
+    // Build the kernel itself.
     const kernel = b.addExecutable(.{
         .name = "kernel",
         .root_source_file = b.path("src/main.zig"),
-        .target = b.resolveTargetQuery(target),
+        .target = target,
         .optimize = optimize,
-        .code_model = .kernel,
+        .code_model = code_model,
     });
 
-    kernel.root_module.addImport("limine", limine.module("limine"));
-    kernel.setLinkerScriptPath(b.path("linker.ld"));
-
-    // Disable LTO. This prevents issues with limine requests
+    // Disable LTO. This prevents Limine requests from being optimized away.
     kernel.want_lto = false;
+
+    // Add Limine as a dependency.
+    kernel.root_module.addImport("limine", limine.module("limine"));
+
+    // Set the linker script.
+    kernel.setLinkerScriptPath(linker_script_path);
 
     b.installArtifact(kernel);
 }

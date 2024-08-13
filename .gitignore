@@ -1,4 +1,5 @@
 /limine
-/ovmf
+/ovmf-aarch64
+/ovmf-x86_64
 *.iso
 *.hdd
