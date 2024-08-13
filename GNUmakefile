@@ -47,6 +47,14 @@ run-aarch64: ovmf $(IMAGE_NAME).iso
 run-hdd-aarch64: ovmf $(IMAGE_NAME).hdd
 	qemu-system-aarch64 -M virt -cpu cortex-a72 -device ramfb -device qemu-xhci -device usb-kbd -m 2G -bios ovmf-aarch64/OVMF.fd -hda $(IMAGE_NAME).hdd
 
+.PHONY: run-riscv64
+run-riscv64: ovmf $(IMAGE_NAME).iso
+	qemu-system-riscv64 -M virt -cpu rv64 -device ramfb -device qemu-xhci -device usb-kbd -m 2G -drive if=pflash,unit=0,format=raw,file=ovmf-riscv64/OVMF.fd -device virtio-scsi-pci,id=scsi -device scsi-cd,drive=cd0 -drive id=cd0,format=raw,file=$(IMAGE_NAME).iso
+
+.PHONY: run-hdd-riscv64
+run-hdd-riscv64: ovmf $(IMAGE_NAME).hdd
+	qemu-system-riscv64 -M virt -cpu rv64 -device ramfb -device qemu-xhci -device usb-kbd -m 2G -drive if=pflash,unit=0,format=raw,file=ovmf-riscv64/OVMF.fd -device virtio-scsi-pci,id=scsi -device scsi-hd,drive=hd0 -drive id=hd0,format=raw,file=$(IMAGE_NAME).hdd
+
 .PHONY: run-bios
 run-bios: $(IMAGE_NAME).iso
 	qemu-system-x86_64 -M q35 -m 2G -cdrom $(IMAGE_NAME).iso -boot d
@@ -65,6 +73,10 @@ ovmf-x86_64:
 ovmf-aarch64:
 	mkdir -p ovmf-aarch64
 	cd ovmf-aarch64 && curl -o OVMF.fd https://retrage.github.io/edk2-nightly/bin/RELEASEAARCH64_QEMU_EFI.fd
+
+ovmf-riscv64:
+	mkdir -p ovmf-riscv64
+	cd ovmf-riscv64 && curl -o OVMF.fd https://retrage.github.io/edk2-nightly/bin/RELEASERISCV64_VIRT_CODE.fd && dd if=/dev/zero of=OVMF.fd bs=1 count=0 seek=33554432
 
 limine/limine:
 	rm -rf limine
@@ -99,6 +111,13 @@ else ifeq ($(KARCH),aarch64)
 		--efi-boot boot/limine/limine-uefi-cd.bin \
 		-efi-boot-part --efi-boot-image --protective-msdos-label \
 		iso_root -o $(IMAGE_NAME).iso
+else ifeq ($(KARCH),riscv64)
+	cp -v limine/limine-uefi-cd.bin iso_root/boot/limine/
+	cp -v limine/BOOTRISCV64.EFI iso_root/EFI/BOOT/
+	xorriso -as mkisofs \
+		--efi-boot boot/limine/limine-uefi-cd.bin \
+		-efi-boot-part --efi-boot-image --protective-msdos-label \
+		iso_root -o $(IMAGE_NAME).iso
 endif
 	rm -rf iso_root
 
@@ -119,6 +138,8 @@ ifeq ($(KARCH),x86_64)
 	mcopy -i $(IMAGE_NAME).hdd@@1M limine/BOOTIA32.EFI ::/EFI/BOOT
 else ifeq ($(KARCH),aarch64)
 	mcopy -i $(IMAGE_NAME).hdd@@1M limine/BOOTAA64.EFI ::/EFI/BOOT
+else ifeq ($(KARCH),riscv64)
+	mcopy -i $(IMAGE_NAME).hdd@@1M limine/BOOTRISCV64.EFI ::/EFI/BOOT
 endif
 
 .PHONY: clean

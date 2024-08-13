@@ -17,6 +17,7 @@ inline fn done() noreturn {
         switch (builtin.cpu.arch) {
             .x86_64 => asm volatile ("hlt"),
             .aarch64 => asm volatile ("wfi"),
+            .riscv64 => asm volatile ("wfi"),
             else => unreachable,
         }
     }

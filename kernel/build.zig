@@ -57,6 +57,13 @@ pub fn build(b: *std.Build) void {
 
             linker_script_path = b.path("linker-aarch64.ld");
         },
+        .riscv64 => {
+            const Feature = std.Target.riscv.Feature;
+
+            target_query.cpu_features_sub.addFeature(@intFromEnum(Feature.d));
+
+            linker_script_path = b.path("linker-riscv64.ld");
+        },
         else => std.debug.panic("Unsupported architecture: {s}", .{@tagName(arch)}),
     }
 
