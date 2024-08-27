@@ -1,28 +1,5 @@
 const std = @import("std");
 
-fn targetQueryForArch(arch: std.Target.Cpu.Arch) std.Target.Query {
-    var target: std.Target.Query = .{
-        .cpu_arch = arch,
-        .os_tag = .freestanding,
-        .abi = .none,
-    };
-
-    if (arch == .x86_64) {
-        const featureSet = std.Target.x86.featureSet;
-
-        target.cpu_features_sub.addFeatureSet(featureSet(&.{ .mmx, .sse, .sse2, .avx, .avx2 }));
-        target.cpu_features_add.addFeatureSet(featureSet(&.{.soft_float}));
-    } else if (arch == .aarch64) {
-        const featureSet = std.Target.aarch64.featureSet;
-
-        target.cpu_features_sub.addFeatureSet(featureSet(&.{ .fp_armv8, .crypto, .neon }));
-    } else {
-        std.debug.panic("Unsupported architecture: {s}", .{@tagName(arch)});
-    }
-
-    return target;
-}
-
 pub fn build(b: *std.Build) void {
     const arch = b.option(std.Target.Cpu.Arch, "arch", "The target kernel architecture") orelse .x86_64;
 
