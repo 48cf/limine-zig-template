@@ -1,0 +1,17 @@
+.{
+    .name = .limine_zig_template,
+    .version = "0.0.0",
+    .fingerprint = 0xcb5b2a3659f29f2f,
+    .minimum_zig_version = "0.14.0",
+    .dependencies = .{
+        .limine_zig = .{
+            .url = "git+https://github.com/48cf/limine-zig?ref=trunk#068d6fba7e73da8dfd0451903dbcd46aae5233fd",
+            .hash = "limine_zig-0.0.0-1TjwQLt6AABhFQNMnuvbeMr1UMviynJpZW_E51Dk0tCO",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
